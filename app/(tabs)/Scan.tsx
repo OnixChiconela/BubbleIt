@@ -1,11 +1,14 @@
-import { Alert, KeyboardAvoidingView, LayoutAnimation, Platform, Share, StyleSheet, Text, TextInput, TouchableOpacity, UIManager, useColorScheme, View } from 'react-native'
-import React, { useLayoutEffect, useState } from 'react'
-import { useNavigation } from 'expo-router';
+import { Alert, Image, KeyboardAvoidingView, LayoutAnimation, Platform, Share, StyleSheet, Text, TextInput, TouchableOpacity, UIManager, useColorScheme, View } from 'react-native'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
+import { router, useNavigation } from 'expo-router';
 import Animated, { FadeInUp, interpolate, useAnimatedRef, useAnimatedStyle, useScrollViewOffset } from 'react-native-reanimated';
 import Colors from '@/constants/Colors';
 import Heading from '@/components/Heading';
 import { Ionicons } from '@expo/vector-icons';
-import { Conversations } from '..';
+import { Conversations, User } from '..';
+import QRCode from 'qrcode'
+import axios from 'axios';
+import { getCurrentUserFromStorage } from '../actions/user/getCurrentUserFromStorage';
 
 const Scan = () => {
   const navigation = useNavigation()
@@ -51,7 +54,7 @@ const Scan = () => {
         //   )
         // },
         {
-          scale: interpolate(scrollOffset.value, [-title, 0, title], [2, 1, 1])
+          scale: interpolate(scrollOffset.value, [-title, 0, title], [1, 1, 0])
         }
       ]
     }
@@ -82,6 +85,36 @@ const Scan = () => {
     }
   }
 
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null)
+  const generateQRCode = async () => {
+    try {
+      const chatId = "123"
+      const qrCode = await QRCode.toDataURL(chatId)
+      setQrCodeUrl(qrCode)
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível gerar o QR code.");
+      console.error("Erro ao gerar QR code:", error);
+    }
+  }
+
+  const [currentUser, setCurrentUser] = useState<User>()
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const {user} = await getCurrentUserFromStorage()
+        setCurrentUser(user)
+      } catch (error) {
+
+      }
+    }
+    getUser()
+  },[])
+
+  const myId = (id?: string) => {
+    router.push("/page/PrivateQRCode")
+    router.setParams({id})
+  }
+
   return (
     // <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS == "ios" ? "height" : "padding"}>
     <View style={[
@@ -91,13 +124,15 @@ const Scan = () => {
       <View style={styles.separator} />
       <Animated.ScrollView ref={scrollRef}>
         <View style={animatedTitle}>
-          <Heading title='Scan' style={{ marginTop: 48 }} titleStyle={animatedTitle}
+          <Heading
+            title='Scan' style={{ marginTop: 48 }}
+            titleStyle={animatedTitle}
             subtitle='Generate a qr code or sent your chat id to quicky initiate a new conversation'
           />
         </View>
         <View style={{ marginTop: 35, flexDirection: "column", gap: 20 }}>
           <TouchableOpacity style={[styles.toggles,
-            { backgroundColor: colorScheme == "dark" ? Colors.gray : Colors.empty }]}
+          { backgroundColor: colorScheme == "dark" ? Colors.gray : Colors.empty }]}
             onPress={() => shareChatId()}
           >
             <View>
@@ -110,16 +145,31 @@ const Scan = () => {
             />
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.toggles, { backgroundColor: colorScheme == "dark" ? Colors.gray : Colors.empty }]}>
+          <TouchableOpacity style={[
+            styles.toggles,
+            { backgroundColor: colorScheme == "dark" ? Colors.gray : Colors.empty }]}
+            onPress={() => myId(currentUser?.id)}
+          >
             <View>
               <Text style={{ fontSize: 16, color: colorScheme == "dark" ? Colors.empty : Colors.text1 }}>
-                Generate qr code
+                conversation id
               </Text>
             </View>
             <Ionicons name="qr-code-outline" size={24}
               color={colorScheme == "dark" ? Colors.empty : Colors.text1}
             />
           </TouchableOpacity>
+          {currentUser?.qrCodeImage && (
+            <View style={{ alignItems: 'center', marginTop: 20 }}>
+              <Image
+                source={{ uri: currentUser.qrCodeImage }}
+                style={{ width: 200, height: 200 }}
+              />
+              <Text style={{ marginTop: 10, color: colorScheme == "dark" ? "#fff" : "#000" }}>
+                Escaneie este código para iniciar a conversa.
+              </Text>
+            </View>
+          )}
         </View>
       </Animated.ScrollView>
     </View>

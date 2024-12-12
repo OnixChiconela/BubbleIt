@@ -2,9 +2,11 @@ import { useColorScheme } from "react-native"
 
 export type User = {
     id: string
+    qrCodeId: string
     displayName: string
     email: string
     image: string
+    qrCodeImage: string
 }
 
 export type Message = {

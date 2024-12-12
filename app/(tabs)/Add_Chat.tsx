@@ -1,10 +1,13 @@
-import { StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native'
-import React, { useLayoutEffect } from 'react'
-import { useNavigation } from 'expo-router'
+import { Alert, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
+import { router, useNavigation } from 'expo-router'
 import Animated, { interpolate, useAnimatedRef, useAnimatedStyle, useScrollViewOffset } from 'react-native-reanimated'
 import Heading from '@/components/Heading'
 import Colors from '@/constants/Colors'
 import { Ionicons } from '@expo/vector-icons'
+import { Camera } from 'expo-camera'
+import QRCodeScanner from 'react-native-qrcode-scanner';
+import CustomButton from '@/components/CustomButton'
 
 const Add_Chat = () => {
   const navigation = useNavigation()
@@ -44,6 +47,39 @@ const Add_Chat = () => {
     }
   })
 
+  const [hasPermission, setHasPermission] = useState(false)
+  const [scanned, setScanned] = useState(false)
+
+  // useEffect(() => {
+  //   try {
+  //     async () => {
+  //       const{status} = await Camera.requestCameraPermissionsAsync()
+  //     setHasPermission(status === 'granted')
+  //   }
+  //   }catch (error) {
+
+  //   }
+  // }, [])
+  // const handleBarCodeScanned = ({type, data}) => {
+  //   setScanned(true)
+
+  // }
+  // if (hasPermission === true) {
+  //   return <Text>Requesting for camera permission</Text>;
+  // }
+  // if (hasPermission === false) {
+  //   return <Text>No access to camera</Text>;
+  // }
+  const handleQrCodeScan = async (e: any, conversationId: string) => {
+    const qrCodeId = e.data; // Dados do QR Code
+    router.push("/messages/Chat")
+    router.setParams(qrCodeId)
+
+  };
+  const handleScan = () => {
+    router.push('/page/ScanerQrCodeScreen')
+  }
+
   return (
     <View style={[
       styles.container,
@@ -59,7 +95,7 @@ const Add_Chat = () => {
         <View style={{ marginTop: 35, flexDirection: "column", gap: 20 }}>
           <TouchableOpacity style={[styles.toggles,
           { backgroundColor: colorScheme == "dark" ? Colors.gray : Colors.empty }]}
-            onPress={() => {}}
+            onPress={() => handleScan()}
           >
             <View>
               <Text style={{ fontSize: 16, color: colorScheme == "dark" ? Colors.empty : Colors.text1 }}>
@@ -74,14 +110,20 @@ const Add_Chat = () => {
           <TouchableOpacity style={[styles.toggles, { backgroundColor: colorScheme == "dark" ? Colors.gray : Colors.empty }]}>
             <View>
               <Text style={{ fontSize: 16, color: colorScheme == "dark" ? Colors.empty : Colors.text1 }}>
-                My contacts
+                Find chat
               </Text>
             </View>
-            <Ionicons name="book-outline" size={24}
+            <Ionicons name="globe-outline" size={24}
               color={colorScheme == "dark" ? Colors.empty : Colors.text1}
             />
           </TouchableOpacity>
         </View>
+        <View style={{ marginTop: 350 }}>
+            <CustomButton
+              title='Invite'
+              onPress={() => { }}
+            />
+          </View>
       </Animated.ScrollView>
     </View>
   )
@@ -92,7 +134,8 @@ export default Add_Chat
 const styles = StyleSheet.create({
   container: {
     height: "100%",
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
+    flex: 1
   },
   header: {
     height: "100%",

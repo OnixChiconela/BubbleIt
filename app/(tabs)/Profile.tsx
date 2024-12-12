@@ -1,8 +1,8 @@
-import { StyleSheet, TouchableOpacity, useColorScheme } from 'react-native'
+import { StyleSheet, TextInput, TouchableOpacity, useColorScheme } from 'react-native'
 import { Text, View } from '@/components/Themed';
 
-import React, { useLayoutEffect, useState } from 'react'
-import { useNavigation } from 'expo-router'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
+import { router, useNavigation } from 'expo-router'
 import Animated, { interpolate, useAnimatedRef, useAnimatedStyle, useScrollViewOffset } from 'react-native-reanimated'
 import Colors from '@/constants/Colors'
 import Heading from '@/components/Heading'
@@ -10,6 +10,12 @@ import { User } from '..'
 import Avatar from '@/components/Avatar'
 import { Ionicons } from '@expo/vector-icons'
 import Settings from '@/components/profile/authenticated/Settings';
+import axios from 'axios';
+import { getCurrentUserFromStorage } from '../actions/user/getCurrentUserFromStorage';
+import { ClearTokenFromStorage } from '../actions/token/ClearTokenFromStorage';
+import { Alert } from 'react-native';
+import { api } from '../api/consumer/api';
+
 
 const Profile = () => {
   const navigation = useNavigation()
@@ -48,7 +54,42 @@ const Profile = () => {
     }
   })
 
-  const [currentUser, setCurrentUser] = useState<User>()
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  // useEffect(() => {
+  //   const getUser = async () => {
+  //     const data = await axios.get(`http://172.20.10.6:3010/api/users/6759a1189c397e6e5392d005`)
+  //     setCurrentUser(data.data)
+  //   }
+  //   getUser()
+  // },[])
+
+  useEffect(() => {
+    const fetchUser = async() => {
+      try {
+        const {user} = await getCurrentUserFromStorage()
+        setCurrentUser(user)
+      } catch(error) {
+        console.log(error)
+      }
+    }
+    fetchUser()
+  }, [])
+
+  const handleLogOut = async () => {
+    try {
+      await api.post("/auth/logout")
+      await ClearTokenFromStorage()
+      setCurrentUser(null)
+      console.log('successfully logout')
+
+      Alert.alert('Success', "You're logged out")
+    } catch (error) {
+      Alert.alert('Error', 'Something went wrong try again')
+      console.log(error)
+    }
+  }
+  
+  
   const currentUserr = {
     name: "Onix bby"
   }
@@ -62,16 +103,17 @@ const Profile = () => {
         <View lightColor='#fff1'>
           <Heading style={{ marginTop: 48 }} title='Profile' />
         </View>
-        {currentUserr ? (
+        {currentUser ? (
           <View style={{ marginTop: 20 }} lightColor='#fff1'>
-            <TouchableOpacity style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-              <View style={{ flexDirection: "row", alignItems: 'center', gap: 20 }} lightColor='#fff1'>
-                <Avatar src={""} height={50} width={50} />
+            <TouchableOpacity style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}
+            onPress={() => router.push("/page/account/ProfileDetails")}>
+              <View style={{ flexDirection: "row", alignItems: 'center', gap: 15 }} lightColor='#fff1'>
+                <Avatar src={""} height={60} width={60} />
                 <View style={{ gap: 3}} lightColor='#fff1'>
                   <Text style={{
                     color: colorScheme == "dark" ? "#fff" : "#000",
                     fontWeight: "500", fontSize: 16
-                  }}>{currentUserr.name}</Text>
+                  }}>{currentUser?.displayName}</Text>
                   <Text style={{ color: colorScheme == "dark" ? "#fff" : Colors.text1 }}>Edit Profile</Text>
                 </View>
               </View>
@@ -84,10 +126,12 @@ const Profile = () => {
             <View style={{flexDirection: "column", gap: 8, marginTop: 0}} lightColor='#fff1'>
                   <Settings />
             </View>
+
+        
           </View>
         ) : (
           <View>
-
+            <View style={{height: 30, backgroundColor:"red"}}/>
           </View>
         )}
       </Animated.ScrollView>
@@ -110,5 +154,13 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     height: 1.5,
     width: "100%"
+  },
+  input: {
+    height: 50,
+    width: "100%",
+    borderWidth:1,
+    borderColor: "#fff",
+    color: "#fff",
+    marginTop: 20
   }
 })

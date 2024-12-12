@@ -6,6 +6,8 @@ import { Ionicons } from '@expo/vector-icons'
 import Colors from '@/constants/Colors'
 import Animated, { interpolate, useAnimatedRef, useAnimatedStyle, useScrollViewOffset } from 'react-native-reanimated'
 import ClientMessages from './ClientMessages'
+import { io, Socket } from "socket.io-client"
+import { getConversationMessage } from '../actions/conversations/getConversationMessages'
 
 const Chat = () => {
     const navigation = useNavigation()
@@ -23,7 +25,10 @@ const Chat = () => {
             headerTransparent: true,
             headerLeft: () => (
                 <TouchableOpacity>
-                    <Ionicons name='chevron-back' size={22} color={Colors.gray} />
+                    <Ionicons
+                        name='chevron-back' size={22}
+                        color={colorScheme == "dark" ? "#fff" : "#000"}
+                    />
                 </TouchableOpacity>
             ),
             headerBackground: () => (
@@ -43,26 +48,26 @@ const Chat = () => {
     })
 
     const [inputMessage, setInputMessage] = useState("")
-    const [socket, setSocket] = useState("")
+    const [socket, setSocket] = useState<Socket | null>(null)
     const [currentUser, setCurrentUser] = useState<User>()
     const [messages, setMessages] = useState<Message[] | undefined>([])
 
     //Initializing connection with server socket
-    // useEffect(() => {
-    //     const newSocket = io(process.env.SOCKET, {
-    //         query: {userId: currentUser?.id}
-    //     })
-    //     setSocket(newSocket);
-    //     newSocket.on('sendMessage', (message) => {
-    //         setMessages(message.content)
-    //     })
-    //     newSocket.on("receiveMessage", (message) => {
-    //         setMessages(message.content)
-    //     })
-    //     return () => {
-    //         newSocket.disconnect()
-    //     }
-    // }, [currentUser])
+    useEffect(() => {
+        const newSocket = io(process.env.SOCKET, {
+            query: { userId: currentUser?.id }
+        })
+        setSocket(newSocket);
+        newSocket.on('sendMessage', (message) => {
+            setMessages(message.content)
+        })
+        newSocket.on("receiveMessage", (message) => {
+            setMessages(message.content)
+        })
+        return () => {
+            newSocket.disconnect()
+        }
+    }, [currentUser])
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -88,42 +93,54 @@ const Chat = () => {
     // },[])
 
     //---------------Messeges_operations----------------\\
-    // const sendMessage = async () => {
-    //     if (socket) {
-    //         if (!currentUser?.id) {
-    //             console.warn("user was not found");
-    //             return
-    //         }
+    const sendMessage = async () => {
+        if (socket) {
+            if (!currentUser?.id) {
+                console.warn("user was not found");
+                return
+            }
 
-    //         const newMessage = {
-    //             content: inputMessage,
-    //             senderId: currentUser.id,
-    //             receiverId: receiverId,
-    //             conversationId: id as string
-    //         }
-    //         socket.emit("send_message", newMessage)
-    //         setInputMessage('')
+            const newMessage = {
+                content: inputMessage,
+                senderId: currentUser.id,
+                receiverId: receiverId,
+                conversationId: id as string
+            }
+            socket.emit("send_message", newMessage)
+            setInputMessage('')
 
-    //         try {
-    //             await insertMessage(newMessage.content, newMessage.senderId, newMessage.receiverId, newMessage.conversationId)
-    //             const fetchedMessages: unknown[] | undefined = await getMessages();
-    //             if (fetchedMessages && Array.isArray(fetchedMessages)) {
-    //                 const validMessages = fetchedMessages as Message[]
-    //                 setMessages(validMessages)
-    //             }
-    //         } catch (error) {
+            // try {
+            //     await insertMessage(newMessage.content, newMessage.senderId, newMessage.receiverId, newMessage.conversationId)
+            //     const fetchedMessages: unknown[] | undefined = await getMessages();
+            //     if (fetchedMessages && Array.isArray(fetchedMessages)) {
+            //         const validMessages = fetchedMessages as Message[]
+            //         setMessages(validMessages)
+            //     }
+            // } catch (error) {
 
-    //         }
-    //     }
-    // }
+            // }
+        }
+    }
+
+    useEffect(() => {
+        const fetchMessages = async () => {
+            try {
+                const messages = await getConversationMessage(id)
+                setMessages(messages)
+            } catch (error) {
+                console.log("Cannot fetch messages: ", error)
+            }
+        }
+        fetchMessages()
+    }, [])
 
     const user = {
         id: "sgdsuid65i7sdhjhls"
     }
     console.log(user.id);
     console.log(receiverId);
-    
-    
+
+
     const message = [
         {
             id: "djhsladjhsajld",
@@ -131,9 +148,9 @@ const Chat = () => {
             content: "Hi this's message from current user yho",
             timeStamp: new Date(2024),
             receiver: {
-              id: receiverId,
-              email: "email@gmail.com",
-              displayName: "James"
+                id: receiverId,
+                email: "email@gmail.com",
+                displayName: "James"
             }
         },
         {
@@ -156,16 +173,16 @@ const Chat = () => {
             behavior={Platform.OS == "ios" ? "height" : "padding"}
         >
             <Animated.ScrollView
-                style={[styles.container, {backgroundColor: colorScheme == "dark" ? "#000" : "#fff"} ]}
+                style={[styles.container, { backgroundColor: colorScheme == "dark" ? "#000" : "#fff" }]}
                 ref={scrollRef}>
                 <View style={{ justifyContent: 'center', alignItems: "center" }}>
                     <Text style={{ color: colorScheme == "dark" ? "#fff" : Colors.text1 }}>Message from server</Text>
                 </View>
-                <ClientMessages messages={message} />
+                <ClientMessages messages={messages} />
             </Animated.ScrollView>
-            <View style={[styles.footer, { 
+            <View style={[styles.footer, {
                 backgroundColor: colorScheme == "dark" ? Colors.darkness : "#fff",
-                borderTopColor: colorScheme == "dark" ? "rgba(255,255,255,0.1)" : "#eee" 
+                borderTopColor: colorScheme == "dark" ? "rgba(255,255,255,0.1)" : "#eee"
             }]}>
                 <View style={[styles.footerContainer, {}]}>
                     <TextInput

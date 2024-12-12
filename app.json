@@ -22,6 +22,9 @@
         "backgroundColor": "#ffffff"
       }
     },
+    "deepLinking": {
+      "prefixes": ["BubbleIt://"]
+    },
     "web": {
       "bundler": "metro",
       "output": "static",

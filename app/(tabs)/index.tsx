@@ -1,7 +1,7 @@
-import { StatusBar, StyleSheet, TextInput, useColorScheme } from 'react-native';
+import { Button, StatusBar, StyleSheet, TextInput, useColorScheme } from 'react-native';
 
 import { Text, View } from '@/components/Themed';
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import { useLayoutEffect } from 'react';
 import Animated, { interpolate, useAnimatedRef, useAnimatedStyle, useScrollViewOffset } from 'react-native-reanimated';
 import Heading from '@/components/Heading';
@@ -72,6 +72,8 @@ export default function TabOneScreen() {
           <Conversation currentUser={currentUser}/>
         </View>
       </Animated.ScrollView>
+
+      <Button title='login' onPress={() => router.push("/page/LoginPage")}/>
       {/* <EditScreenInfo path="app/(tabs)/index.tsx" /> */}
     </View>
   );

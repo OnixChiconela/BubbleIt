@@ -5,25 +5,26 @@ import Colors from '@/constants/Colors'
 import { Ionicons } from '@expo/vector-icons'
 import Animated from 'react-native-reanimated'
 import Divider from '@/components/Divider'
+import { router } from 'expo-router'
 
 const Settings = () => {
     const colorScheme = useColorScheme()
     return (
         <View style={{ borderRadius: 14 }} lightColor={"#fff"} darkColor={Colors.darkness}>
             <Animated.View style={styles.container}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push("/page/account/account")}>
                     <Animated.View style={{ marginTop: 20, flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-                        <Ionicons name='person-outline' size={26} color={colorScheme == "dark"? "#fff" : "#000"} />
-                        <Text style={{ color: colorScheme == "dark" ? "#fff":"#00", fontSize: 15 }}> My account</Text>
+                        <Ionicons name='person-outline' size={26} color={colorScheme == "dark" ? "#fff" : "#000"} />
+                        <Text style={{ color: colorScheme == "dark" ? "#fff" : "#00", fontSize: 15 }}> My account</Text>
                     </Animated.View>
                 </TouchableOpacity>
 
                 <Divider />
 
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push("/page/account/privacy")}>
                     <Animated.View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-                        <Ionicons name='lock-closed-outline' size={26} color={colorScheme == "dark"? "#fff" : "#000"} />
-                        <Text style={{ color: colorScheme == "dark" ? "#fff":"#00", fontSize: 15 }}> Privacy</Text>
+                        <Ionicons name='lock-closed-outline' size={26} color={colorScheme == "dark" ? "#fff" : "#000"} />
+                        <Text style={{ color: colorScheme == "dark" ? "#fff" : "#00", fontSize: 15 }}> Privacy</Text>
                     </Animated.View>
                 </TouchableOpacity>
             </Animated.View>

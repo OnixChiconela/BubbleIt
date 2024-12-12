@@ -29,7 +29,7 @@ const ClientMessages: React.FC<MessagesProps> = ({
                             message.senderId === currentUser?.id ?
                                 {
                                     alignSelf: "flex-end", backgroundColor: colorSchema == "dark" ?
-                                    "#D5642F" : "#F08D47", paddingLeft: 20
+                                    "#D5642F" : "orange", paddingLeft: 20
                                 } : // \ D35A26 \ EB8B3D \ F08D47 \ D5642F
                                 {
                                     alignSelf: "flex-start", backgroundColor: colorSchema == "dark" ?

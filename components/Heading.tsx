@@ -68,6 +68,7 @@ const Heading: React.FC<HeadingProps> = ({
                     <Text style={{
                         fontWeight: '300',
                         fontSize: 18,
+                        marginTop: 5,
                         color: colorScheme == "dark" ? "#fff" : Colors.text1
                     }}>
                         {subtitle}

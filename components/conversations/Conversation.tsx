@@ -15,7 +15,7 @@ interface ConversationProps {
 }
 
 const Conversation: React.FC<ConversationProps> = ({
-  // data,
+  data,
   currentUser
 }) => {
   const colorScheme = useColorScheme()
@@ -26,49 +26,49 @@ const Conversation: React.FC<ConversationProps> = ({
     displayName: "Jamil"
   }
 
-  const data = [
-    {
-      id: "asjhajshdjas",
-      title: "new message",
-      unreadCount: 2,
-      participants: [
-        {
-          userId: "ldshfkjdshf",
-          conversationId: "asjhajshdjas",
-          user: {
-            id: "sadhhsdgashda4n",
-            email: "otheruser@email.com",
-            image: "",
-            displayName: "James"
-          }
-        }
-      ],
-      messages: [
-        {
-          id: "djhsladjhsajld",
-          senderId: currentUserr.id,
-          content: "Hi this's message from current user yho",
-          timeStamp: new Date(2024),
-          receiver: {
-            id: "sadhhsdgashda4n",
-            email: "email@gmail.com",
-            displayName: "James"
-          }
-        },
-        {
-          id: "asdhgahdasld",
-          senderId: "sadhhsdgashda4n",
-          content: "this can be a long conversation if you wont pay me, your bitch ass",
-          timeStamp: new Date(2024 - 12),
-          receiver: {
-            id: currentUserr.id,
-            email: "email@gmail.com"
-          }
-        }
-      ]
-    }
-  ]
-  currentUser = currentUserr
+  // const data = [
+  //   {
+  //     id: "asjhajshdjas",
+  //     title: "new message",
+  //     unreadCount: 2,
+  //     participants: [
+  //       {
+  //         userId: "ldshfkjdshf",
+  //         conversationId: "asjhajshdjas",
+  //         user: {
+  //           id: "sadhhsdgashda4n",
+  //           email: "otheruser@email.com",
+  //           image: "",
+  //           displayName: "James"
+  //         }
+  //       }
+  //     ],
+  //     messages: [
+  //       {
+  //         id: "djhsladjhsajld",
+  //         senderId: currentUserr.id,
+  //         content: "Hi this's message from current user yho",
+  //         timeStamp: new Date(2024),
+  //         receiver: {
+  //           id: "sadhhsdgashda4n",
+  //           email: "email@gmail.com",
+  //           displayName: "James"
+  //         }
+  //       },
+  //       {
+  //         id: "asdhgahdasld",
+  //         senderId: "sadhhsdgashda4n",
+  //         content: "this can be a long conversation if you wont pay me, your bitch ass",
+  //         timeStamp: new Date(2024 - 12),
+  //         receiver: {
+  //           id: currentUserr.id,
+  //           email: "email@gmail.com"
+  //         }
+  //       }
+  //     ]
+  //   }
+  // ]
+  // currentUser = currentUserr
   return (
     <View>
       {data && data?.map((conversation) => {
@@ -96,7 +96,9 @@ const Conversation: React.FC<ConversationProps> = ({
                 <View style={styles.container}>
                   <Avatar height={50} width={50} src={otherParticipant?.user.image} />
                   <View style={{ flexDirection: "column", gap: 5 }}>
-                    <Text style={{ fontSize: 16, fontWeight: "600" }}>
+                    <Text style={{ fontSize: 16, fontWeight: "600",
+                      color: colorScheme == "dark" ? "#fff" : "#000"
+                     }}>
                       {otherParticipant?.user?.email || `${otherParticipant?.user?.email} ${otherParticipant?.user?.displayName}` || "Usuário Desconhecido"}
                     </Text>
                     <Text style={{ fontWeight: "light", color: Colors.gray }}>
