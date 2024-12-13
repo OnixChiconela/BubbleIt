@@ -1,10 +1,12 @@
 import { StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View } from 'react-native'
-import React, { useLayoutEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import Animated, { interpolate, useAnimatedRef, useAnimatedStyle, useScrollViewOffset } from 'react-native-reanimated'
 import { router, useNavigation } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import Colors from '@/constants/Colors'
 import Avatar from '@/components/Avatar'
+import { getCurrentUserFromStorage } from '@/app/actions/user/getCurrentUserFromStorage'
+import { User } from '@/app'
 
 const ProfileDetails = () => {
     const navigation = useNavigation()
@@ -39,6 +41,19 @@ const ProfileDetails = () => {
 
     const [isEditing, setIsEditing] = useState(false)
     const [displayName, setDisplayName] = useState("")
+    const [currentUser, setCurrentUser] = useState<User | null>(null)
+
+    useEffect(() => {
+        const user = async() => {
+            try {
+                const {user} = await getCurrentUserFromStorage()
+                setCurrentUser(user)
+            } catch (error) {
+
+            }
+        }
+        user()
+    }, [])
     return (
         <View style={[
             styles.container, { backgroundColor: colorScheme == "dark" ? "#000" : "#fff1" }
@@ -54,7 +69,7 @@ const ProfileDetails = () => {
                         styles.cardContainer,
                     ]}>
                         <TouchableOpacity>
-                            <Avatar src={""} height={150} width={150} />
+                            <Avatar src={currentUser?.image} height={150} width={150} />
                         </TouchableOpacity>
                         <Text style={{
                             fontSize: 20, fontWeight: "600",
@@ -74,7 +89,7 @@ const ProfileDetails = () => {
                                     <Text style={{
                                         fontSize: 20, fontWeight: "600",
                                         color: colorScheme == "dark" ? "#fff" : "#000"
-                                    }}>Onix</Text>
+                                    }}>{currentUser?.displayName}</Text>
                                 </TouchableOpacity>
                             )}
                         </Text>

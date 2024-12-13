@@ -110,7 +110,7 @@ const PrivateQRCode = () => {
                 </View>
 
                 <View style={{ marginTop: 30, flexDirection: "column", alignItems: "center", gap: 15, justifyContent: 'center' }}>
-                    <Avatar src={""} height={60} width={60} />
+                    <Avatar src={currentUser?.image} height={60} width={60} />
                     <Text style={{
                         fontSize: 16.5, fontWeight: "500",
                         color: colorScheme == "dark" ? "#fff" : "#000"

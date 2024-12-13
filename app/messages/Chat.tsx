@@ -141,30 +141,30 @@ const Chat = () => {
     console.log(receiverId);
 
 
-    const message = [
-        {
-            id: "djhsladjhsajld",
-            senderId: user.id,
-            content: "Hi this's message from current user yho",
-            timeStamp: new Date(2024),
-            receiver: {
-                id: receiverId,
-                email: "email@gmail.com",
-                displayName: "James"
-            }
-        },
-        {
-            id: "asdhgahdasld",
-            senderId: receiverId,
-            content: "this can be a long conversation if you wont pay me, your bitch ass",
-            timeStamp: new Date(2024 - 12),
-            receiver: {
-                id: user.id,
-                email: "email@gmail.com",
-                displayName: "James"
-            }
-        }
-    ]
+    // const message = [
+    //     {
+    //         id: "djhsladjhsajld",
+    //         senderId: user.id,
+    //         content: "Hi this's message from current user yho",
+    //         timeStamp: new Date(2024),
+    //         receiver: {
+    //             id: receiverId,
+    //             email: "email@gmail.com",
+    //             displayName: "James"
+    //         }
+    //     },
+    //     {
+    //         id: "asdhgahdasld",
+    //         senderId: receiverId,
+    //         content: "this can be a long conversation if you wont pay me, your bitch ass",
+    //         timeStamp: new Date(2024 - 12),
+    //         receiver: {
+    //             id: user.id,
+    //             email: "email@gmail.com",
+    //             displayName: "James"
+    //         }
+    //     }
+    // ]
 
     const inputWidth = Dimensions.get("screen").width / 1.45
     return (

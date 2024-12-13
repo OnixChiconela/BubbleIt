@@ -111,7 +111,7 @@ const LoginPage = () => {
                 hashedPassword: hashedPassword,
                 displayName: displayName,
                 phoneNumber: phoneNumber,
-                image: "jfjfj"
+                image: image
             }
             await createUser(data)
         } catch (error) {

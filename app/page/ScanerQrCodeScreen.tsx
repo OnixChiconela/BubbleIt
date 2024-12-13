@@ -1,35 +1,108 @@
-import React from 'react';
-import { View, Text } from 'react-native';
-import QRCodeScanner from 'react-native-qrcode-scanner';
-import { useNavigation } from '@react-navigation/native';
-import { router } from 'expo-router';
-import axios from 'axios';
+import React, { useEffect, useRef, useState } from 'react';
+import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Camera } from 'expo-camera';
+import { useRouter } from 'expo-router';
+import Colors from '@/constants/Colors';
+import CustomButton from '@/components/CustomButton';
 
-const ScanQRCodeScreen = () => {
-  const navigation = useNavigation();
+const ScannerQrCodeScreen = () => {
+  const [hasPermission, setHasPermission] = useState(false);
+  const [scanned, setScanned] = useState(false);
+  const router = useRouter();
 
-  const onSuccess = async (e: any) => {
-    const qrCodeId = e.data; // Dados do QR Code
+  let cameraRef = useRef<Camera>(null);
 
-    if (qrCodeId.startswith("user")) {
-        const userEmail = qrCodeId.replace("user", "")
-        const user = await axios.get(`http://172.20.10.6:3010/api/users/Igor@gmail.com`)
+  useEffect(() => {
+    const requestPermission = async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setHasPermission(status === 'granted');
+    };
+
+    requestPermission();
+  }, []);
+
+  const handleBarCodeScanned = async ({ barcodes }: { barcodes: any[] }) => {
+    if (scanned || barcodes.length === 0) return;
+    setScanned(true);
+
+    const firstCode = barcodes[0];
+    if (firstCode?.data) {
+      try {
+        const parsedData = JSON.parse(firstCode.data);
+        if (parsedData.chatId) {
+          Alert.alert('QR Code Scanned', `Chat ID: ${parsedData.chatId}`, [
+            {
+              text: 'Go to Chat',
+              onPress: () => router.push(`/chat/${parsedData.chatId}`),
+            },
+            {
+              text: 'Cancel',
+              style: 'cancel',
+              onPress: () => setScanned(false),
+            },
+          ]);
+        } else {
+          throw new Error('Invalid QR Code');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Invalid QR Code format.');
+        setScanned(false);
+      }
     }
-      router.push("/messages/Chat")
-      router.setParams({conversationId: qrCodeId})
-
   };
 
+  if (!hasPermission) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.text}>Camera permission is required to scan QR codes.</Text>
+        <CustomButton title="Request Permission" onPress={Camera.requestCameraPermissionsAsync} />
+      </View>
+    );
+  }
+
   return (
-    <View style={{ flex: 1 }}>
-      {/* <QRCodeScanner
-        onRead={onSuccess} // Chama a função onSuccess após o QR Code ser escaneado
-        reactivate={true} // Permite escanear múltiplos QR Codes sem sair da tela
-        reactivateTimeout={3000} // Intervalo de reativação
-        showMarker={true} // Exibe o marcador de QR Code
-      /> */}
+    <View style={styles.container}>
+      {scanned && (
+        <CustomButton
+          title="Scan Again"
+          onPress={() => setScanned(false)}
+          style={styles.scanButton}
+        />
+      )}
+      {!scanned && (
+        <Camera
+          style={styles.camera}
+          ref={(ref) => (cameraRef = ref)}
+          onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+          barCodeScannerSettings={{
+            barCodeTypes: [Camera.Constants.BarCodeType.qr],
+          }}
+        />
+      )}
     </View>
   );
 };
 
-export default ScanQRCodeScreen;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.empty,
+  },
+  text: {
+    fontSize: 16,
+    color: Colors.text1,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  camera: {
+    flex: 1,
+    width: '100%',
+  },
+  scanButton: {
+    marginTop: 20,
+  },
+});
+
+export default ScannerQrCodeScreen;

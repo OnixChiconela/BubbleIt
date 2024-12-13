@@ -108,7 +108,7 @@ const Profile = () => {
             <TouchableOpacity style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}
             onPress={() => router.push("/page/account/ProfileDetails")}>
               <View style={{ flexDirection: "row", alignItems: 'center', gap: 15 }} lightColor='#fff1'>
-                <Avatar src={""} height={60} width={60} />
+                <Avatar src={currentUser.image} height={60} width={60} />
                 <View style={{ gap: 3}} lightColor='#fff1'>
                   <Text style={{
                     color: colorScheme == "dark" ? "#fff" : "#000",

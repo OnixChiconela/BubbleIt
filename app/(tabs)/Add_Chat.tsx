@@ -1,5 +1,5 @@
 import { Alert, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native'
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { router, useNavigation } from 'expo-router'
 import Animated, { interpolate, useAnimatedRef, useAnimatedStyle, useScrollViewOffset } from 'react-native-reanimated'
 import Heading from '@/components/Heading'
@@ -49,18 +49,51 @@ const Add_Chat = () => {
 
   const [hasPermission, setHasPermission] = useState(false)
   const [scanned, setScanned] = useState(false)
+  const [cameraVisible, setCameraVisible] = useState(false);
+
+
+  const cameraRef = useRef<typeof Camera>(null);
+
+  const requestPermission = async () => {
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    if (status == "granted") {
+      setHasPermission(status === 'granted');
+    } else {
+      Alert.alert('Permissão Negada', 'O acesso à câmera é necessário para escanear QR Codes.');
+    }
+  };
+
+  const handleOpenCamera = async () => {
+    if (!hasPermission) {
+      await requestPermission()
+    } 
+    if (hasPermission) {
+      setCameraVisible(true)
+    }
+  }
+
+  const handleBarCodeScanned = ({ type, data } : any) => {
+    Alert.alert('Código Escaneado!', `Tipo: ${type}\nConteúdo: ${data}`);
+    setCameraVisible(false);
+
+  }
+
+  // const handleScan = () => {
+  //   setScanned(true);
+  //   console.log('Código escaneado!');
+  // };
 
   // useEffect(() => {
   //   try {
   //     async () => {
-  //       const{status} = await Camera.requestCameraPermissionsAsync()
-  //     setHasPermission(status === 'granted')
-  //   }
-  //   }catch (error) {
+  //       const { status } = await Camera.requestCameraPermissionsAsync()
+  //       setHasPermission(status === 'granted')
+  //     }
+  //   } catch (error) {
 
   //   }
   // }, [])
-  // const handleBarCodeScanned = ({type, data}) => {
+  // const handleBarCodeScanned = ({ type, data }: any) => {
   //   setScanned(true)
 
   // }
@@ -70,14 +103,15 @@ const Add_Chat = () => {
   // if (hasPermission === false) {
   //   return <Text>No access to camera</Text>;
   // }
-  const handleQrCodeScan = async (e: any, conversationId: string) => {
-    const qrCodeId = e.data; // Dados do QR Code
-    router.push("/messages/Chat")
-    router.setParams(qrCodeId)
 
-  };
+  // const handleQrCodeScan = async (e: any, conversationId: string) => {
+  //   const qrCodeId = e.data; // Dados do QR Code
+  //   router.push("/messages/Chat")
+  //   router.setParams(qrCodeId)
+
+  // };
   const handleScan = () => {
-    router.push('/page/ScanerQrCodeScreen')
+    router.push('/page/AddChatScreen')
   }
 
   return (
@@ -119,11 +153,11 @@ const Add_Chat = () => {
           </TouchableOpacity>
         </View>
         <View style={{ marginTop: 350 }}>
-            <CustomButton
-              title='Invite'
-              onPress={() => { }}
-            />
-          </View>
+          <CustomButton
+            title='Invite'
+            onPress={() => { }}
+          />
+        </View>
       </Animated.ScrollView>
     </View>
   )
